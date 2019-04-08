@@ -1,0 +1,4 @@
+export const UPDATE_BEER_LIST = 'UPDATE_BEER_LIST'
+export const TOGGLE_MODAL = 'TOGGLE_MODAL'
+export const SELECT_OBJECT = 'SELECT_OBJECT'
+export const INC_PAGE = 'INC_PAGE'
