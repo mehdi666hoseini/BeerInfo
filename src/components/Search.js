@@ -10,26 +10,32 @@ class Search extends Component {
     super(props);
 
     this.state = {
-      searchContext: '',
       flatListData: [],
+      searchContext: '',
     };
-
-    // this.searchTheContext().then(e => { this.setState({ flatListData: e }) })
-
   }
+
   static navigationOptions = {
     tabBarIcon: <Icon name='search' />
   }
 
-  searchTheContext = async () => {
-    try {
-      const response = await fetch(`https://api.punkapi.com/v2/beers/${this.state.searchContext}`);
-      const jsonData = await response.json();
-      return jsonData
+
+  searchTheContext = async (q) => {
+    let myRe = /\w+/g
+    let res = q.match(myRe)
+    let finalRes = []
+    for (const s of res) {
+      try {
+        const response = await fetch(`https://api.punkapi.com/v2/beers/${s}`);
+        const jsonData = await response.json();
+        if (Array.isArray(jsonData)) { finalRes = [...finalRes, ...jsonData] }
+        else { return ([{ id: '?', name: 'Search Again !' }]) }
+      }
+      catch (err) {
+        console.log(`errrrror is: ${err}`);
+      }
     }
-    catch (err) {
-      console.log(`errrrror is: ${err}`)
-    }
+    return finalRes
   }
 
 
@@ -38,16 +44,15 @@ class Search extends Component {
       <View>
         <TextInput
           style={{ marginHorizontal: '5%' }}
-          onChangeText={e => { this.setState({ searchContext: e }); this.searchTheContext().then(e => { this.setState({ flatListData: e }) });  }}
+          // value={this.state.searchContext}
+          onChangeText={e => { this.searchTheContext(e).then(a => { this.setState({ flatListData: a, searchContext: e }) }) }}
           underlineColorAndroid='blue'
-          value={this.state.searchContext}
 
         />
         <FlatList
           data={this.state.flatListData}
-          // renderItem={({ item, index }) => <Beer item={item} />}
-          renderItem={({ item, index }) => <Beer item={item} /> }
-          ListEmptyComponent={<ActivityIndicator />}
+          renderItem={({ item, index }) => <Beer item={item} />}
+          ListEmptyComponent={this.state.flatListData == '' ? <Text>Search smt</Text> : <ActivityIndicator />}
 
         />
 
